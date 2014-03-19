@@ -17,8 +17,8 @@ module.exports = function(grunt){
     'setVersionStamp',
     // 'clean',
     'transpile:amd',
-    // 'concat:globals',
-    // 'browser:dist',
+    'concat:globals',
+    'browser:dist',
     // 'jshint'
   ]);
 

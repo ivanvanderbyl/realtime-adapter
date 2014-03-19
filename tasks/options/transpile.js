@@ -1,4 +1,5 @@
 function nameFor(path) {
+  console.log(path)
   var result,  match;
 
   if (match = path.match(/^(?:lib|test|test\/tests)\/(.*?)(?:\.js)(?:\.es6)?$/)) {
@@ -16,10 +17,11 @@ module.exports = {
     moduleName: nameFor,
     files: [{
       expand: true,
-      cwd: 'packages/',
-      src: [ '**/lib/**/*.js.es6', ],
+      cwd: 'lib',
+      src: [ '**/*.js.es6', ],
       dest: 'tmp',
       ext: '.amd.js'
     }]
   }
 };
+
