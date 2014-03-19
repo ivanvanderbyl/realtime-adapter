@@ -22,8 +22,7 @@ Request for a resource:
 <SEQUENCE>,<VERB>,<RESOURCE TYPE>,<RESOURCE ID>,<JSON PAYLOAD>
 
 # Example:
-
-12,GET,post,78,
+1,GET,post,78,
 ```
 
 Would reply with:
@@ -32,9 +31,31 @@ Would reply with:
 <SEQUENCE>,<RESOURCE TYPE>,<RESOUECE ID>,<JSON PAYLOAD>
 
 # Example:
-12,post,78,{"post": {"id": 78, "title": "Test Post"}}
+1,post,78,{"post": {"id": 78, "title": "Test Post"}}
 
 ```
 
 Requests must contain 5 components separated by `,` even if they are empty, and responses must contan 4 components separated by `,` even if they are empty.
+
+#### SEQUENCE
+
+Sequence is an auto incrementing number to correlate messages when they return. Each request message should have a unique sequence number.
+
+#### VERB
+
+Verb represents the normal HTTP method to translate to an action on the server.
+
+_It might make more sense for this to be the name of a CRUD action_
+
+#### RESOURCE TYPE
+
+The name of a resource on the server for which to act upon.
+
+#### RESOURCE ID
+
+The unique identifier of the server side resource.
+
+#### JSON PAYLOAD
+
+A standard JSON serialized payload representing the resource being requested. When making requests to modify a resource, this may only include changed attributes, or all attributes.
 
