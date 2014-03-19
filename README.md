@@ -10,6 +10,8 @@ The benefit this gives, apart from a smaller network footprint, is the ability t
 
 Initially this will focus on creating an adapter for Ruby on Rails which uses the existing conventions provided by `ActiveModelSerializers`.
 
+This adapter will be designed to work out of the box and assume no knowledge of your App.
+
 ## Specification
 
 All of this is still in flux, and more of a proposal than a specification, but we'll get there.
