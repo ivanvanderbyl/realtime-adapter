@@ -45,7 +45,10 @@ Sequence is an auto incrementing number to correlate messages when they return. 
 
 Verb represents the normal HTTP method to translate to an action on the server.
 
+**Discussion***
 _It might make more sense for this to be the name of a CRUD action_
+
+This would better represent requesting the list of resources and a single resource.
 
 #### RESOURCE TYPE
 
@@ -53,9 +56,11 @@ The name of a resource on the server for which to act upon.
 
 #### RESOURCE ID
 
-The unique identifier of the server side resource.
+The unique identifier of the server side resource. If left blank, the server should respond with a collection of resources according to its own semantics.
 
 #### JSON PAYLOAD
 
 A standard JSON serialized payload representing the resource being requested. When making requests to modify a resource, this may only include changed attributes, or all attributes.
+
+When making a request for a single resource should be left blank. However, when requesting a collection of resources this can include params used for filtering or otherwise manipulating the source collection e.g. sorting on the server.
 
