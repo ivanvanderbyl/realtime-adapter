@@ -22,6 +22,9 @@ module.exports = function(grunt){
     // 'jshint'
   ]);
 
-  grunt.registerTask('default', ['buildPackages']);
+  grunt.registerTask('prepareTests', ['buildPackages', 'concat:tests']);
+  grunt.registerTask('test:server',  ['prepareTests', 'connect']);
+  grunt.registerTask('test',         ['test:server', 'qunit:local']);
 
+  grunt.registerTask('default', ['buildPackages']);
 };

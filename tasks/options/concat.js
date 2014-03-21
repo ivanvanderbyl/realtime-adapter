@@ -3,11 +3,11 @@ var grunt = require('grunt');
 module.exports = {
   amd: {
     src: [ 'tmp/**/*.amd.js' ],
-    dest: 'tmp/web_socket_adapter.amd.js'
+    dest: 'tmp/websocket_adapter.amd.js'
   },
   globals: {
     src: [ 'vendor/loader.js', 'tmp/**/*.amd.js' ],
-    dest: 'tmp/web_socket_adapter.browser1.js'
+    dest: 'tmp/websocket_adapter.browser1.js'
   },
   tests: {
     src: [ 'packages/**/tests/**/*.js' ],
