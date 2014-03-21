@@ -1,0 +1,28 @@
+{
+  "name": "websocket-adapter",
+  "version": "0.0.1",
+  "homepage": "https://github.com/ivanvanderbyl/websocket-adapter",
+  "authors": [
+    "Ivan Vanderbyl <ivanvanderbyl@me.com>"
+  ],
+  "description": "Ember Data WebSocket Adapter",
+  "main": "lib/main.js.es6",
+  "keywords": [
+    "websocket",
+    "ember-data"
+  ],
+  "dependencies": {
+    "ember": "~1.4.0",
+    "ember-data": "~1.0.0-beta.7",
+    "qunit": "~1.13.0"
+  },
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "directory": "bower_components"
+}
