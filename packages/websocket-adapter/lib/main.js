@@ -1,7 +1,8 @@
 
 import {WebSocketAdapter, WebSocketSerializer} from "./system";
+import DS from "./core";
 
-export {
-  WebSocketAdapter,
-  WebSocketSerializer
-}
+DS.WebSocketAdapter = WebSocketAdapter;
+DS.WebSocketSerializer = WebSocketSerializer;
+
+export default DS;

@@ -15,7 +15,7 @@ module.exports = function(grunt){
 
   grunt.registerTask('buildPackages', [
     'setVersionStamp',
-    // 'clean',
+    'clean',
     'transpile:amd',
     'concat:globals',
     'browser:dist',

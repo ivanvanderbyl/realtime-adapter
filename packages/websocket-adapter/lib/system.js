@@ -1,4 +1,4 @@
-import WebSocketAdapter from "./system/websocket_adapter";
-import WebSocketSerializer from "./system/websocket_serializer";
+import WebSocketAdapter from "./system/web_socket_adapter";
+import WebSocketSerializer from "./system/web_socket_serializer";
 
 export {WebSocketAdapter, WebSocketSerializer};
