@@ -3,6 +3,19 @@
 var WebSocketAdapter = DS.Adapter.extend({
   defaultSerializer: '-websocket',
 
+  init: function(){
+    var socketEndpoint = this.get('socketEndpoint');
+    if (!socketEndpoint || typeof socketEndpoint !== 'string') {
+      throw new Error('Please set the `socketEndpoint` property on the adapter.');
+    }
+
+    if (/^wss?\:\/\//.test(socketEndpoint)) {
+      throw new Error('socketEndpoint must start with a scheme of ws:// or wss://');
+    }
+
+    this._connect(socketEndpoint);
+  },
+
   pathForType: function(type){
     return 'unknown_type';
   },
@@ -96,6 +109,17 @@ var WebSocketAdapter = DS.Adapter.extend({
     @return {Promise} promise
   */
   createRecord: function(store, type, record) {
+
+  },
+
+
+  request: function(){
+
+  },
+
+  _connect: function(url){
+    var socket = new WebSocket(url);
+    this._socket = socket;
 
   },
 });
