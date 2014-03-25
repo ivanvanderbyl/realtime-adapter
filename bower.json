@@ -1,7 +1,7 @@
 {
-  "name": "websocket-adapter",
+  "name": "realtime-adapter",
   "version": "0.0.1",
-  "homepage": "https://github.com/ivanvanderbyl/websocket-adapter",
+  "homepage": "https://github.com/ivanvanderbyl/realtime-adapter",
   "authors": [
     "Ivan Vanderbyl <ivanvanderbyl@me.com>"
   ],

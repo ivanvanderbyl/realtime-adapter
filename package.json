@@ -1,7 +1,7 @@
 {
-  "name": "websocket-adapter",
-  "description": "Streaming WebSocket Adapter for Ember Data",
-  "homepage": "http://github.com/emberjs/ember.js",
+  "name": "realtime-adapter",
+  "description": "Realtime Adapter for Ember Data",
+  "homepage": "http://github.com/ivanvanderbyl/realtime-adapter",
   "author": [
     "Ivan Vanderbyl"
   ],
