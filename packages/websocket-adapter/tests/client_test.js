@@ -36,7 +36,7 @@ test('sends a CONNECT frame after connecting', function () {
   client.connect();
 
   var frameData = Realtime.Frame.createWithCommand('CONNECT', {
-    "accept-version": client.STOMP_VERSIONS.supportedVersions()
+    "accept-version": '1.1,1.0'
   }).marshal()
 
   // Fake the onopen event

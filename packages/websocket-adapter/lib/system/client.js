@@ -10,15 +10,6 @@ import Frame from './frame';
 
 var Client = Ember.Object.extend({
 
-  STOMP_VERSIONS: {
-    V1_0: '1.0',
-    V1_1: '1.1',
-    V1_2: '1.2',
-    supportedVersions: function() {
-      return '1.1,1.0';
-    }
-  },
-
   connected: false,
 
   maxWebSocketFrameSize: 16 * 1024,
@@ -37,18 +28,17 @@ var Client = Ember.Object.extend({
     var headers = {};
     var ws = this.get('socket');
 
-    // ws.onmessage = function(bytes) {
+    ws.onmessage = function(bytes) {
 
-    // }.bind(this);
+    };
 
     var that = this;
-    ws.onopen = function() {
+    ws.onopen = (function() {
       Ember.debug('WebSocket connected');
-      headers["accept-version"] = that.STOMP_VERSIONS.supportedVersions();
+      headers["accept-version"] = Client.STOMP_VERSIONS.supportedVersions();
       // headers["heart-beat"] = [_this.heartbeat.outgoing, _this.heartbeat.incoming].join(',');
       that._transmit("CONNECT", headers);
-
-    }//.bind(this);
+    });
   },
 
   send: function(destination, headers, body) {
@@ -80,6 +70,15 @@ var Client = Ember.Object.extend({
 });
 
 Client.reopenClass({
+  STOMP_VERSIONS: {
+    V1_0: '1.0',
+    V1_1: '1.1',
+    V1_2: '1.2',
+    supportedVersions: function() {
+      return '1.1,1.0';
+    }
+  },
+
   createWithWebSocket: function(ws){
     return Client.create({ socket: ws });
   },
