@@ -1,28 +1,28 @@
 /**
-  @module ember-data
+  @module realtime
 */
 
 /**
-  All Ember Data methods and functions are defined inside of this namespace.
+  All Realtime methods and functions are defined inside of this namespace.
 
-  @class DS
+  @class Realtime
   @static
 */
-var DS;
-if ('undefined' === typeof DS) {
+var Realtime;
+if ('undefined' === typeof Realtime) {
   /**
     @property VERSION
     @type String
     @default '<%= versionStamp %>'
     @static
   */
-  DS = Ember.Namespace.create({
+  Realtime = Ember.Namespace.create({
     VERSION: '<%= versionStamp %>'
   });
 
   if (Ember.libraries) {
-    Ember.libraries.registerCoreLibrary('Ember Data', DS.VERSION);
+    Ember.libraries.registerCoreLibrary('Realtime', Realtime.VERSION);
   }
 }
 
-export default DS;
+export default Realtime;

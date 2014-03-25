@@ -9,7 +9,7 @@
   "directories": {
     "lib": "lib"
   },
-  "namespace": "DS",
+  "namespace": "Realtime",
   "dependencies": {},
   "devDependencies": {
     "grunt": "^0.4.4",

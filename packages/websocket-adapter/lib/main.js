@@ -1,8 +1,11 @@
 
-import {WebSocketAdapter, WebSocketSerializer} from "./system";
-import DS from "./core";
+import {WebSocketAdapter, WebSocketSerializer, Frame, Client} from "./system";
 
-DS.WebSocketAdapter = WebSocketAdapter;
-DS.WebSocketSerializer = WebSocketSerializer;
+import Realtime from "./core";
 
-export default DS;
+Realtime.WebSocketAdapter = WebSocketAdapter;
+Realtime.WebSocketSerializer = WebSocketSerializer;
+Realtime.Frame = Frame
+Realtime.Client = Client
+
+export default Realtime;
