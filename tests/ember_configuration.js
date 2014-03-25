@@ -28,7 +28,7 @@
 
     container.register('serializer:-default', DS.JSONSerializer);
     container.register('serializer:-rest', DS.RESTSerializer);
-    container.register('adapter:-websocket', WebSocketAdapter);
+    container.register('adapter:-websocket', DS.WebSocketAdapter);
 
     container.injection('serializer', 'store', 'store:main');
 
