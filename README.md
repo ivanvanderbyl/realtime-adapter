@@ -10,11 +10,11 @@ This adapter will abstract away the STOMP connection and provide a consistent in
 
 Each resource is represented over a multiplexed WebSocket connection as a STOMP Subscription, allowing state changes to be propagated in realtime to all clients with access to that resource.
 
-The benefit this gives, apart from a smaller network footprint, is the reduced complexity of running both an HTTP API and a pusher interface, and merging data client side.
+The benefit this gives, apart from a smaller network footprint, is the reduced complexity of not needing to run both an HTTP API and a pusher interface (Pusher, Custom WebSockets, Socket.io etc.), and merging data client side.
 
 Initially this will focus on creating an adapter for Ruby on Rails which uses the existing conventions provided by `ActiveModelSerializers`.
 
-This adapter will be designed to work out of the box and assume no knowledge of your App.
+This adapter will be designed to work out of the box and assume no knowledge of your Application's code, and thus be a drop in replacement for any of the existing Ember Data adapters.
 
 ## The Adapter
 
@@ -27,6 +27,7 @@ The chosen wire format is [STOMP](http://stomp.github.io/stomp-specification-1.2
 This should make developing backends to support this adapter very easy and straight forward.
 
 The over the wire flow can be described like this:
+
 1. When creating a resource, a request containing the JSON representation of the new resource is sent to the server as a `SEND` frame. In the headers of this frame are encoded the destination resource mapping, content type, and action.
 2. The server decodes this frame and uses the resource destination to interpret which resource needs to be action upon in much the same way the Rails router will route to a controller based on a path.
 3.
