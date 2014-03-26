@@ -13,7 +13,22 @@ function sizeOfUTF8(s) {
   }
 };
 
+/**
+ * Represents a single deserialised STOMP frame
+ *
+ * @type {Ember.Object}
+ * @expose
+ * @public
+ */
+
 var Frame = Ember.Object.extend({
+  /**
+   * Frame body
+   *
+   * @type {String}
+   * @public
+   * @expose
+   */
   body: null,
 
   headers: {},
@@ -98,5 +113,7 @@ Frame.reopenClass({
     });
   },
 })
+
+Frame.Byte = Byte;
 
 export default Frame;

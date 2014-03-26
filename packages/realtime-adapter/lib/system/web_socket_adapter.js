@@ -118,9 +118,8 @@ var WebSocketAdapter = DS.Adapter.extend({
   },
 
   _connect: function(url){
-    var socket = new WebSocket(url);
-    this._socket = socket;
-
+    var client = this.get('client');
+    client.connect()
   },
 });
 
