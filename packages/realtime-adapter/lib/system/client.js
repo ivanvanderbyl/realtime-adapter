@@ -10,7 +10,7 @@ import Frame from './frame';
 
 var Byte = Frame.Byte;
 
-var Client = Ember.Object.extend({
+var Client = Ember.Object.extend(Ember.Evented, {
 
   connected: false,
 
@@ -76,6 +76,13 @@ var Client = Ember.Object.extend({
     this._transmit("CONNECT", headers);
   },
 
+  /**
+   * Callback which fires when STOMP session is connected.
+   *
+   * @type {Function}
+   */
+  didConnect: Ember.K,
+
   socketDidClose: function(reason){
     this._cleanUp();
     Ember.debug('WebSocket connection closed');
@@ -105,6 +112,7 @@ var Client = Ember.Object.extend({
         Ember.debug('Connected to server');
         this._setupHeartbeat(frame.headers);
         this.set('connected', true);
+        this.didConnect();
       break;
     }
   },

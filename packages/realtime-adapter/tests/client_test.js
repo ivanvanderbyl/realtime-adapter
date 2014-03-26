@@ -98,8 +98,13 @@ test( 'socket is setup', function() {
 });
 
 test('handles CONNECTED message', function() {
+  expect(2)
+  var spy = sinon.spy(client, 'didConnect');
   client.connect();
   client.didReceiveMessage(connectedFrameData);
+
+
+  ok(spy.calledOnce, 'connect callback fired')
   ok(client.get('connected'), 'client is connected');
 });
 
