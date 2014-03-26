@@ -16,7 +16,8 @@
     "ember-data": "~1.0.0-beta.7",
     "qunit": "~1.13.0",
     "protobuf": "~2.0.5",
-    "sinon": "1.9.0"
+    "sinon": "1.9.0",
+    "ember-resolver": "git://github.com/stefanpenner/ember-jj-abrams-resolver.git#9805033c178e7f857f801359664adb599444b430"
   },
   "license": "MIT",
   "ignore": [
