@@ -47,3 +47,8 @@ test('encodes and decodes frame body', function() {
   deepEqual(expectedFrame.get('body'), body, 'expected frame body');
   deepEqual(frame.get('body'), expectedFrame.get('body'), 'decode encoded frame body');
 });
+
+// test('aliases subscription to headers.subscription', function() {
+//   var frame = Realtime.Frame.createWithCommand('SEND', { headers: { subscription: 'sub-01' } });
+//   equal(frame.get('headers.subscription'), 'sub-01', 'subscription is aliased');
+// });

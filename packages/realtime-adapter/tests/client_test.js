@@ -140,7 +140,6 @@ asyncTest('configures heartbeat and maintains connection when receiving PONGs', 
 
   setTimeout(function() {
     equal(client.get('connected'), true, 'connection is open');
-    // ok(spy.withArgs(Byte.LF).called, 'ping was sent')
     equal(pingCount, 5, '5 pings sent');
     QUnit.start()
   }, 55);
@@ -167,3 +166,61 @@ asyncTest('emits client heartbeat messages', function() {
     QUnit.start()
   }, 55);
 })
+
+module('subscriptions', {
+  setup: function() {
+    ws = new Socket();
+    ws.readyState = WebSocket.OPEN;
+    client = Realtime.Client.createWithWebSocket(ws);
+  },
+
+  teardown: function() {
+    Ember.run(function() {
+      client.destroy();
+    })
+  }
+})
+
+test('sends a SUBSCRIBE frame', function () {
+  var spy = sinon.spy(ws, 'send');
+  client.connect();
+  // Fake the onopen event
+  ws.onopen()
+
+  client.subscribe('posts/1', {}, function() {
+
+  });
+
+  var frameData = Realtime.Frame.createWithCommand('SUBSCRIBE', {
+    id: 'sub-0',
+    destination: 'posts/1'
+  }).marshal()
+
+  ok(spy.withArgs(frameData).calledOnce, 'sends SUBSCRIBE frame');
+});
+
+asyncTest('creates a subscription which can receive messages', function () {
+  expect(3);
+
+  var received = sinon.stub();
+
+  client.connect();
+  // Fake the onopen event
+  ws.onopen();
+
+  var subID = client.subscribe('posts/1', {}, function(frame) {
+    ok(true, 'subscription callback did fire')
+    equal(frame.headers.subscription, subID, 'received correct subscription message');
+    equal(frame.body.post.title, 'Realtime Ember', 'message has correct body');
+    QUnit.start();
+  });
+
+  var frameData = Realtime.Frame.createWithCommand('MESSAGE', {
+    subscription: subID,
+    destination: 'posts/1'
+  }, {
+    post: { title: 'Realtime Ember' }
+  }).marshal();
+
+  client.didReceiveMessage(frameData);
+});

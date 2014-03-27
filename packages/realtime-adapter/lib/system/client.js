@@ -27,6 +27,7 @@ var Client = Ember.Object.extend(Ember.Evented, {
    */
   init: function(){
     this.subscriptions = {};
+    this.counter = 0;
   },
 
   /**
@@ -114,6 +115,28 @@ var Client = Ember.Object.extend(Ember.Evented, {
         this.set('connected', true);
         this.didConnect();
       break;
+      case "MESSAGE":
+        var subscriptionId = frame.headers['subscription'];
+        var subscriptionCallback = this.subscriptions[subscriptionId];
+
+        if (subscriptionCallback) {
+          var messageID = frame.headers["message-id"];
+          var client = this;
+
+          frame.ack = function(headers) {
+            return client.ack(messageID, subscription, headers);
+          };
+          frame.nack = function(headers) {
+            return client.nack(messageID, subscription, headers);
+          };
+
+          subscriptionCallback(frame);
+          // Ember.run.bind(this, subscriptionCallback, frame);
+        }else{
+          Ember.Logger.error('Unhandled MESSAGE received: ' + bytes);
+        }
+
+      break;
     }
   },
 
@@ -133,6 +156,25 @@ var Client = Ember.Object.extend(Ember.Evented, {
 
     headers['destination'] = destination;
     return this._transmit("SEND", headers, body);
+  },
+
+  /**
+   * Creates a subscription for the given path
+   *
+   * @param  {String}   destination Resource to subscribe to
+   * @param  {Object}   headers     Additional Headers to include in subscription
+   * @param  {Function} callback    Callback to fire when a message in received
+   *
+   * @return {String}               Subscription ID
+   */
+  subscribe: function(destination, headers, callback){
+    var client;
+    if (!headers) { headers = {}; }
+    if (!headers.id) { headers.id = "sub-" + this.counter++; }
+    headers.destination = destination;
+    this.subscriptions[headers.id] = callback;
+    this._transmit("SUBSCRIBE", headers);
+    return headers.id;
   },
 
   _transmit: function(command, headers, body){

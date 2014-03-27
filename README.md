@@ -30,7 +30,6 @@ The over the wire flow can be described like this:
 
 1. When creating a resource, a request containing the JSON representation of the new resource is sent to the server as a `SEND` frame. In the headers of this frame are encoded the destination resource mapping, content type, and action.
 2. The server decodes this frame and uses the resource destination to interpret which resource needs to be action upon in much the same way the Rails router will route to a controller based on a path.
-3.
 
 #### Heartbeats
 
