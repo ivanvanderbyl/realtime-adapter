@@ -158,11 +158,29 @@ var Client = Ember.Object.extend(Ember.Evented, {
     return this._transmit("SEND", headers, body);
   },
 
+  /**
+   * Request sends a request for the given resource and returns the first
+   * correlated message for that resource in a callback.
+   *
+   * Client                     Server
+   * ---------------------------------
+   * SUBSCRIBE posts ---------> [tx-1]
+   * SEND [{}] --- CREATE ----> [1]
+   * [tx-1] <----- CREATED ---- MESSAGE
+   * UNSUBSCRIBE posts -------> tx-1
+   *
+   *
+   * @param  {String}   destination Resource path
+   * @param  {Object}   headers     Additional Headers
+   * @param  {String or Object}   body        Body to encode
+   * @param  {Function} callback
+   *
+   */
   request: function(destination, headers, body, callback){
-    this.send(destination, headers, body);
     this.subscribe(destination, function() {
 
     })
+    this.send(destination, headers, body);
   },
 
   /**
