@@ -124,10 +124,10 @@ var Client = Ember.Object.extend(Ember.Evented, {
           var client = this;
 
           frame.ack = function(headers) {
-            return client.ack(messageID, subscription, headers);
+            return client.ack(messageID, subscriptionId, headers);
           };
           frame.nack = function(headers) {
-            return client.nack(messageID, subscription, headers);
+            return client.nack(messageID, subscriptionId, headers);
           };
 
           subscriptionCallback(frame);
@@ -158,6 +158,13 @@ var Client = Ember.Object.extend(Ember.Evented, {
     return this._transmit("SEND", headers, body);
   },
 
+  request: function(destination, headers, body, callback){
+    this.send(destination, headers, body);
+    this.subscribe(destination, function() {
+
+    })
+  },
+
   /**
    * Creates a subscription for the given path
    *
@@ -175,6 +182,81 @@ var Client = Ember.Object.extend(Ember.Evented, {
     this.subscriptions[headers.id] = callback;
     this._transmit("SUBSCRIBE", headers);
     return headers.id;
+  },
+
+  /**
+   * Sends an ACK frame
+   *
+   * @param  {String} messageID
+   * @param  {String} subscriptionId
+   * @param  {Object} headers
+   *
+   */
+  ack: function(messageID, subscriptionId, headers){
+    if (!headers) { headers = {}; }
+    headers['message-id'] = messageID;
+    headers['subscription'] = subscriptionId;
+    return this._transmit("ACK", headers);
+  },
+
+  /**
+   * Sends an NACK frame
+   *
+   * @param  {String} messageID
+   * @param  {String} subscriptionId
+   * @param  {Object} headers
+   *
+   */
+  nack: function(messageID, subscriptionId, headers){
+    if (!headers) { headers = {}; }
+    headers['message-id'] = messageID;
+    headers['subscription'] = subscriptionId;
+    return this._transmit("NACK", headers);
+  },
+
+  /**
+   * Start a transaction
+   *
+   * @return {Object} Transaction
+   */
+  begin: function(){
+    var transactionId = "tx-" + this.counter++;
+    this._transmit("BEGIN", {
+      transaction: transactionId
+    });
+    var client = this;
+
+    return {
+      id: transactionId,
+      commit: function() {
+        return client.commit(transactionId);
+      },
+      abort: function() {
+        return client.abort(transactionId);
+      }
+    };
+  },
+
+  /**
+   * Abort an existing transaction
+   *
+   * @param  {String} transactionId
+   */
+  abort: function(transactionId){
+    var headers = {};
+    headers['transaction'] = transactionId;
+    return this._transmit("ABORT", headers);
+  },
+
+  /**
+   * Commit an existing transaction
+   *
+   * @param  {String} transactionId
+   */
+  commit: function(transactionId){
+    var headers = {};
+    headers['transaction'] = transactionId;
+    return this._transmit("COMMIT", headers);
   },
 
   _transmit: function(command, headers, body){

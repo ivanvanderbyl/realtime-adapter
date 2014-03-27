@@ -5,25 +5,9 @@ var Byte = {
   NULL: '\x00'
 };
 
-var Socket = function() {};
-Socket.prototype = {
-  close: function(){
-    this.onclose();
-  },
-
-  lastSend: null,
-  readyState: WebSocket.CLOSED,
-
-  send: function(data){
-    this.lastSend = data;
-  },
-  onopen: function() {},
-  onclose: function() {}
-}
-
 module("client - Client", {
   setup: function() {
-    ws = new Socket();
+    ws = new FakeWebSocket();
 
     client = Realtime.Client.createWithWebSocket(ws);
   },
@@ -73,7 +57,7 @@ var connectedFrameData;
 
 module('client#didReceiveMessage - Client', {
   setup: function(){
-    ws = new Socket();
+    ws = new FakeWebSocket();
     ws.readyState = WebSocket.OPEN;
 
     client = Realtime.Client.createWithWebSocket(ws);
@@ -169,7 +153,7 @@ asyncTest('emits client heartbeat messages', function() {
 
 module('subscriptions', {
   setup: function() {
-    ws = new Socket();
+    ws = new FakeWebSocket();
     ws.readyState = WebSocket.OPEN;
     client = Realtime.Client.createWithWebSocket(ws);
   },
@@ -200,7 +184,9 @@ test('sends a SUBSCRIBE frame', function () {
 });
 
 asyncTest('creates a subscription which can receive messages', function () {
-  expect(3);
+  expect(4);
+
+  var spy = sinon.spy(client, 'ack');
 
   var received = sinon.stub();
 
@@ -212,6 +198,11 @@ asyncTest('creates a subscription which can receive messages', function () {
     ok(true, 'subscription callback did fire')
     equal(frame.headers.subscription, subID, 'received correct subscription message');
     equal(frame.body.post.title, 'Realtime Ember', 'message has correct body');
+
+    frame.ack();
+
+    ok(spy.calledOnce, 'ACK called');
+
     QUnit.start();
   });
 
