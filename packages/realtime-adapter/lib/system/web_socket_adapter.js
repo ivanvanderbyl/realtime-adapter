@@ -1,5 +1,7 @@
 // import {Adapter} from "ember-data/lib/system/adapter";
 
+import {Client} from "./client";
+
 var WebSocketAdapter = DS.Adapter.extend({
   defaultSerializer: '-websocket',
 
@@ -118,8 +120,8 @@ var WebSocketAdapter = DS.Adapter.extend({
   },
 
   _connect: function(url){
-    var client = this.get('client');
-    client.connect()
+    var client = Client.createWithAddress(this.get('socketEndpoint'));
+    this.set('client', client);
   },
 });
 
