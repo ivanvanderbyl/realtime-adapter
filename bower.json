@@ -6,7 +6,7 @@
     "Ivan Vanderbyl <ivanvanderbyl@me.com>"
   ],
   "description": "Ember Data WebSocket Adapter",
-  "main": "lib/main.js.es6",
+  "main": "packages/realtime-adapter/lib/main.js",
   "keywords": [
     "websocket",
     "ember-data"
