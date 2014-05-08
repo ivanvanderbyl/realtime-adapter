@@ -27,6 +27,7 @@ var Client = Ember.Object.extend(Ember.Evented, {
    */
   init: function(){
     this.subscriptions = {};
+    this._subscriptionList = {};
     this.counter = 0;
   },
 
@@ -35,7 +36,7 @@ var Client = Ember.Object.extend(Ember.Evented, {
    *
    * @type {Number}
    */
-  incomingHeartbeat: 1E3,
+  incomingHeartbeat: 8E3,
 
   /**
    * Desired outgoing heartbeat from client
@@ -56,6 +57,17 @@ var Client = Ember.Object.extend(Ember.Evented, {
     }
   }.observes('socket').on('init'),
 
+  errorHandler: Ember.K,
+
+  errorHandlerDidChange: function() {
+    var handler = this.get('errorHandler');
+    var socket = this.get('socket');
+
+    if (socket && handler) {
+      socket.onerror = handler;
+    }
+  }.observes('errorHandler', 'socket'),
+
   /**
    * Callback which fires before the STOMP session is negotiated.
    *
@@ -68,10 +80,6 @@ var Client = Ember.Object.extend(Ember.Evented, {
     Ember.debug('WebSocket connected');
     var headers = {};
     headers["accept-version"] = Client.STOMP_VERSIONS.supportedVersions();
-    headers["heart-beat"] = [
-      this.get('outgoingHeartbeat'),
-      this.get('incomingHeartbeat')
-    ].join(',');
     this._transmit("CONNECT", headers);
   },
 
@@ -117,12 +125,13 @@ var Client = Ember.Object.extend(Ember.Evented, {
     switch (frame.command) {
       case "CONNECTED":
         Ember.debug('Connected to server');
-        this._setupHeartbeat(frame.headers);
+        // this._setupHeartbeat(frame.headers);
         this.set('connected', true);
         this.didConnect();
       break;
       case "MESSAGE":
         var subscriptionId = frame.headers['subscription'];
+        console.log(subscriptionId, this.subscriptions)
         var subscriptionCallback = this.subscriptions[subscriptionId];
 
         if (subscriptionCallback) {
@@ -199,13 +208,34 @@ var Client = Ember.Object.extend(Ember.Evented, {
    * @return {String}               Subscription ID
    */
   subscribe: function(destination, headers, callback){
-    var client;
     if (!headers) { headers = {}; }
     if (!headers.id) { headers.id = "sub-" + this.counter++; }
     headers.destination = destination;
     this.subscriptions[headers.id] = callback;
     this._transmit("SUBSCRIBE", headers);
+
+    this._subscriptionList[destination] = headers.id;
+
     return headers.id;
+  },
+
+  subscribeOnce: function(destination, headers, callback){
+    if (this._subscriptionList[destination]) { return };
+    this.subscribe(destination, headers, callback);
+  },
+
+  unsubscribe: function(subscriptionId, headers){
+    if (!headers) { headers = {}; }
+    if (!headers.id) { headers.id = subscriptionId }
+    delete this.subscriptions[subscriptionId];
+
+    Object.keys(this._subscriptionList).forEach(function(key) {
+      if (this._subscriptionList[key] === subscriptionId) {
+        delete this._subscriptionList[key];
+      }
+    })
+
+    this._transmit("UNSUBSCRIBE", headers);
   },
 
   /**
@@ -312,33 +342,35 @@ var Client = Ember.Object.extend(Ember.Evented, {
       return parseInt(ttl);
     });
 
-    var serverOutgoing = heartbeats[0];
-    var serverIncoming = heartbeats[1];
+    console.log("Server configured heart beat:", heartbeats)
 
-    if (!(this.get('outgoingHeartbeat') === 0 || serverIncoming === 0)) {
-      var ttl = Math.max(this.get('outgoingHeartbeat'), serverIncoming);
-      Ember.debug("send PING every " + ttl + "ms");
+    // var serverOutgoing = heartbeats[0];
+    // var serverIncoming = heartbeats[1];
 
-      this.pinger = setInterval(function() {
-        if (this.get('socket.readyState') === WebSocket.OPEN) {
-          Ember.debug('>>> PING');
-          this.get('socket').send(Byte.LF);
-        }
-      }.bind(this), ttl);
-    }
+    // if (!(this.get('outgoingHeartbeat') === 0 || serverIncoming === 0)) {
+    //   var ttl = Math.max(this.get('outgoingHeartbeat'), serverIncoming);
+    //   Ember.debug("send PING every " + ttl + "ms");
 
-    if (!(this.get('incomingHeartbeat') === 0 || serverOutgoing === 0)) {
-      var ttl = Math.max(this.get('incomingHeartbeat'), serverOutgoing);
-      Ember.debug("check PONG every " + ttl + "ms");
-      this.ponger = setInterval(function() {
-        var delta;
-        delta = now() - this._serverActivity;
-        if (delta > ttl * 2) {
-          Ember.debug("did not receive server activity for the last " + delta + "ms");
-          // this.get('socket').close();
-        }
-      }.bind(this), ttl);
-    }
+    //   this.pinger = setInterval(function() {
+    //     if (this.get('socket.readyState') === WebSocket.OPEN) {
+    //       Ember.debug('>>> PING');
+    //       this.get('socket').send(Byte.LF);
+    //     }
+    //   }.bind(this), ttl);
+    // }
+
+    // if (!(this.get('incomingHeartbeat') === 0 || serverOutgoing === 0)) {
+    //   var ttl = Math.max(this.get('incomingHeartbeat'), serverOutgoing);
+    //   Ember.debug("check PONG every " + ttl + "ms");
+    //   this.ponger = setInterval(function() {
+    //     var delta;
+    //     delta = now() - this._serverActivity;
+    //     if (delta > ttl * 2) {
+    //       Ember.debug("did not receive server activity for the last " + delta + "ms");
+    //       // this.get('socket').close();
+    //     }
+    //   }.bind(this), ttl);
+    // }
   },
 
   _cleanUp: function() {
