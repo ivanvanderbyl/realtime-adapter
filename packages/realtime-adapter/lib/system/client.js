@@ -35,29 +35,26 @@ var Client = Ember.Object.extend(Ember.Evented, {
    *
    * @type {Number}
    */
-  incomingHeartbeat: 10E3,
+  incomingHeartbeat: 1E3,
 
   /**
    * Desired outgoing heartbeat from client
    *
    * @type {Number}
    */
-  outgoingHeartbeat: 10E3,
+  outgoingHeartbeat: 1E3,
 
-  /**
-   * Initiates the STOMP layer connection
-   *
-   * @expose
-   * @public
-   */
-  connect: function(){
-    var headers = {};
+  socketDidChange: function() {
     var ws = this.get('socket');
 
-    ws.onmessage = Ember.run.bind(this, this.didReceiveMessage);
-    ws.onopen = Ember.run.bind(this, this.willConnect, headers);
+    ws.onmessage = this.didReceiveMessage.bind(this);
+    ws.onopen = Ember.run.bind(this, this.willConnect);
     ws.onclose = Ember.run.bind(this, this.socketDidClose);
-  },
+
+    if (ws.readyState === WebSocket.OPEN) {
+      this.willConnect();
+    }
+  }.observes('socket').on('init'),
 
   /**
    * Callback which fires before the STOMP session is negotiated.
@@ -67,8 +64,9 @@ var Client = Ember.Object.extend(Ember.Evented, {
    * @expose
    * @public
    */
-  willConnect: function(headers) {
+  willConnect: function() {
     Ember.debug('WebSocket connected');
+    var headers = {};
     headers["accept-version"] = Client.STOMP_VERSIONS.supportedVersions();
     headers["heart-beat"] = [
       this.get('outgoingHeartbeat'),
@@ -84,6 +82,10 @@ var Client = Ember.Object.extend(Ember.Evented, {
    */
   didConnect: Ember.K,
 
+  disconnect: function(){
+    this.get('socket').close();
+  },
+
   socketDidClose: function(reason){
     this._cleanUp();
     Ember.debug('WebSocket connection closed');
@@ -97,13 +99,17 @@ var Client = Ember.Object.extend(Ember.Evented, {
    * @expose
    * @public
    */
-  didReceiveMessage: function(bytes) {
+  didReceiveMessage: function(event) {
     this._serverActivity = now();
+
+    var bytes = event.data;
 
     if (bytes === Byte.LF) {
       Ember.debug("<<< PONG");
       return;
     }
+
+    // console.log(bytes)
 
     var frame = Frame.create();
     frame.unmarshal(bytes);
@@ -315,6 +321,7 @@ var Client = Ember.Object.extend(Ember.Evented, {
 
       this.pinger = setInterval(function() {
         if (this.get('socket.readyState') === WebSocket.OPEN) {
+          Ember.debug('>>> PING');
           this.get('socket').send(Byte.LF);
         }
       }.bind(this), ttl);
@@ -328,7 +335,7 @@ var Client = Ember.Object.extend(Ember.Evented, {
         delta = now() - this._serverActivity;
         if (delta > ttl * 2) {
           Ember.debug("did not receive server activity for the last " + delta + "ms");
-          this.get('socket').close();
+          // this.get('socket').close();
         }
       }.bind(this), ttl);
     }
@@ -379,6 +386,20 @@ Client.reopenClass({
    */
   createWithWebSocket: function(ws){
     return Client.create({ socket: ws });
+  },
+
+  /**
+   * Creates a Client and opens a new WebSocket connection
+   *
+   * @param  {String} url A fully qualified WebSocket connection.
+   *
+   * @return {Realtime.Client}
+   * @expose
+   * @public
+   */
+  createWithAddress: function(url){
+    var ws = new WebSocket(url, 'STOMP');
+    return this.createWithWebSocket(ws);
   },
 })
 
