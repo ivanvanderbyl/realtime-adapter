@@ -64,7 +64,7 @@ var Frame = Ember.Object.extend({
 
   unmarshal: function(bytes){
     var divider, headers, headerLines, command,
-        _ref, idx, len, body, chr, _j;
+        _ref, idx, len, body, chr, _j, start;
 
     divider = bytes.search(RegExp('' + Byte.LF + Byte.LF));
     headerLines = bytes.substring(0, divider).split(Byte.LF);
@@ -83,7 +83,7 @@ var Frame = Ember.Object.extend({
       body = ('' + bytes).substring(start, start + len);
     }else{
       chr = null;
-      for (i = _j = start, _ref1 = bytes.length; start <= _ref1 ? _j < _ref1 : _j > _ref1; i = start <= _ref1 ? ++_j : --_j) {
+      for (var i = _j = start, _ref1 = bytes.length; start <= _ref1 ? _j < _ref1 : _j > _ref1; i = start <= _ref1 ? ++_j : --_j) {
         chr = bytes.charAt(i);
         if (chr === Byte.NULL) {
           break;
