@@ -4,7 +4,7 @@
 
 This project aims to provide a streaming WebSocket adapter for Ember Data which can entirely replace making individual HTTP requests to a REST API for each action.
 
-This would be achieved by encoding the semantics of REST over a streaming connection using the STOMP protocol.
+This would be achieved by encoding the semantics of REST over a streaming connection using an extension of the STOMP protocol.
 
 This adapter will abstract away the STOMP connection and provide a consistent interface to Ember Data for all the standard operations.
 
@@ -15,6 +15,8 @@ The benefit this gives, apart from a smaller network footprint, is the reduced c
 Initially this will focus on creating an adapter for Ruby on Rails which uses the existing conventions provided by `ActiveModelSerializers`.
 
 This adapter will be designed to work out of the box and assume no knowledge of your Application's code, and thus be a drop in replacement for any of the existing Ember Data adapters.
+
+The back-end service this adapter talks to is written in Go and uses Redis to manage subscriptions, making it language agnostic as anything which can talk to Redis can by extension communicate with the realtime back-end.
 
 ## The Adapter
 
@@ -33,9 +35,20 @@ The over the wire flow can be described like this:
 
 #### Heartbeats
 
-The adapter should be responsible for maintaining the connection to the server as needed, and may queue messages for a configurable about of time before returning with an error if a connection is temporarily dropped, and reestablished within a configurable time period.
+The STOMP protocol specifies specifics for handling heartbeats between server and client. However because we're using WebSockets as the transport layer we've omitted the actual PING and PONG frames from STOMP in favour of using the built in WebSocket heartbeat semantics.
 
-Because the browser WebSockets API does not expose any configurable keep alive semantics, it is often favourable to implement an application layer heartbeat to check if the connection is active. We implement a heartbeat based on the semantics of the STOMP protocol.
+The client and server do still negotiate a heartbeat between each other upon connect at an application level. This is done in the form of a `heartbeat` header as described in the STOMP protocol:
+
+> In order to enable heart-beating, each party has to declare what it can do and what it would like the other party to do. This happens at the very beginning of the STOMP session, by adding a heart-beat header to the CONNECT and CONNECTED frames.
+> When used, the heart-beat header MUST contain two positive integers separated by a comma.
+> The first number represents what the sender of the frame can do (outgoing heart-beats):
+> - 0 means it cannot send heart-beats
+> - otherwise it is the smallest number of milliseconds between heart-beats that it can guarantee
+> The second number represents what the sender of the frame would like to get (incoming heart-beats):
+> - 0 means it does not want to receive heart-beats
+> - otherwise it is the desired number of milliseconds between heart-beats
+
+The browser WebSocket API doesn't provide any semantics for controlling the heartbeat of the underlying WebSocket connection, instead it will simply reply to any `ping` frames from the server. Because of this the server is responsible for continually maintaining the connection.
 
 #### Negotiation
 
